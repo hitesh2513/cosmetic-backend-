@@ -87,8 +87,22 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Update status (Admin) — you'll need to implement
-// router.put("/:id/status", async (req, res) => { ... });
+// Add after existing routes
+router.put("/:id/status", async (req, res) => {
+  const { paymentStatus, deliveryStatus } = req.body;
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    if (paymentStatus) order.paymentStatus = paymentStatus;
+    if (deliveryStatus) order.deliveryStatus = deliveryStatus;
+
+    await order.save();
+    res.json({ message: "Order status updated", order });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update order status" });
+  }
+});
 
 // ✅ Export the router
 module.exports = router;
