@@ -81,7 +81,7 @@ router.get("/user/:email", async (req, res) => {
 router.put("/:id/status", async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body; // { deliveryStatus: "..."} or { paymentStatus: "..." }
+    const updates = req.body;
 
     const order = await Order.findByIdAndUpdate(id, updates, { new: true });
 
