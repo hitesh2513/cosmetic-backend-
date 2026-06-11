@@ -67,6 +67,16 @@ router.post("/confirm", async (req, res) => {
   }
 });
 
+// Get all orders (Admin)
+router.get("/", async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ date: -1 });
+    res.json(orders);
+  } catch (err) {
+    console.error("Error fetching orders:", err);
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
+});
 // Get user orders
 router.get("/user/:email", async (req, res) => {
   try {
