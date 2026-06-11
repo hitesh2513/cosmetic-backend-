@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 require("dotenv").config();
+const Razorpay = require("razorpay");
 
 const orderRoutes = require("./routes/orderRoutes");
 
@@ -11,40 +12,36 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-
-// Allow requests from anywhere (can restrict later)
 app.use(cors({
-  origin: "*",
+  origin: "*", // You can restrict this later to your frontend domain
   methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
-// MongoDB Connection
+// ✅ MongoDB Connection (Live MongoDB Atlas)
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-.then(() => console.log("✅ MongoDB Connected"))
-.catch(err => console.error("❌ MongoDB Error:", err));
+.then(() => console.log("✅ MongoDB Connected Successfully"))
+.catch(err => console.error("❌ MongoDB Connection Error:", err));
 
-// API Routes
+// ✅ Razorpay Setup (Loads Live Keys from .env)
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+app.set("razorpay", razorpay);
+
+// ✅ API Routes
 app.use("/api/orders", orderRoutes);
 
-// Serve static files from 'views' for HTML and CSS
-app.use(express.static(path.join(__dirname, "../views")));
-
-// Serve static files from 'public' for JS and other assets
-app.use(express.static(path.join(__dirname, "../public")));
-
-// Optional: route specifically for admin.html or other HTML files if not linked via SPA
-app.get("/admin", (req, res) => {
-  res.sendFile(path.join(__dirname, "../views/admin.html"));
+app.get("/", (req, res) => {
+  res.json({
+    message: "Om Sai Backend Running"
+  });
 });
 
-// For all other routes not starting with /api, serve index.html (SPA support)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../views/index.html"));
-});
-
-// Start the server
+// ✅ Start Server
+// ✅ Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

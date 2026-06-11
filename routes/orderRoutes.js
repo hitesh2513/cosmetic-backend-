@@ -77,18 +77,24 @@ router.get("/user/:email", async (req, res) => {
   }
 });
 
-// Get all orders (Admin)
-router.get("/", async (req, res) => {
+// ✅ Update delivery or payment status (Admin)
+router.put("/:id/status", async (req, res) => {
   try {
-    const orders = await Order.find().sort({ date: -1 });
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to get all orders" });
+    const { id } = req.params;
+    const updates = req.body; // { deliveryStatus: "..."} or { paymentStatus: "..." }
+
+    const order = await Order.findByIdAndUpdate(id, updates, { new: true });
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.json({ message: "Order updated successfully", order });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
-
-// Update status (Admin) — you'll need to implement
-// router.put("/:id/status", async (req, res) => { ... });
 
 // ✅ Export the router
 module.exports = router;
